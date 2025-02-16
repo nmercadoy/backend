@@ -6,20 +6,20 @@ import dotenv from "dotenv";
 
 // Importar rutas
 import userRoutes from "./src/routes/user.routes.js";
-import dataRoutes from "./src/routes/data.routes.js"; // 🔹 Corrección: nombre correcto
+import dataRoutes from "./src/routes/data.routes.js";
 import activityRoutes from "./src/routes/activity.routes.js";
 import statsRoutes from "./src/routes/stats.routes.js";
 import projectRoutes from "./src/routes/project.routes.js";
-
 
 dotenv.config();
 
 const app = express();
 
-// Configuración de CORS (Permitir múltiples orígenes en producción)
-const allowedOrigins = ["http://localhost:5173"];
+// Configuración de CORS (Permitir cualquier frontend)
 app.use(cors({
-    origin: allowedOrigins,
+    origin: "*",
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type,Authorization",
     credentials: true,
 }));
 
@@ -34,10 +34,10 @@ app.get("/", (req, res) => {
 });
 
 // Rutas del API
-app.use("/api/users", userRoutes); // Gestión de usuarios
-app.use("/api/data", dataRoutes); // Datos ambientales (CO₂, agua, residuos)
-app.use("/api/activity", activityRoutes); // Actividades del usuario
-app.use("/api/stats", statsRoutes); // Estadísticas del sistema
-app.use("/api/projects", projectRoutes); // Proyectos ambientales
+app.use("/api/users", userRoutes);
+app.use("/api/data", dataRoutes);
+app.use("/api/activity", activityRoutes);
+app.use("/api/stats", statsRoutes);
+app.use("/api/projects", projectRoutes);
 
 export default app;
