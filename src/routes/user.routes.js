@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, getUserById, updateUser, deleteUser } from "../controllers/user.controller.js";
+import { register, login, getAllUsers, getUserById, updateUser, deleteUser } from "../controllers/user.controller.js";
 import { registerSchema } from "../schemas/user.schema.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { verifyToken } from "../middlewares/auth.token.js";
@@ -19,5 +19,8 @@ router.put("/:id", verifyToken, updateUser);
 
 // 📌 Eliminar usuario por ID (protegido)
 router.delete("/:id", verifyToken, deleteUser);
+
+// 📌 Obtener todos los usuarios (solo para administradores)
+router.get("/", verifyToken, getAllUsers);
 
 export default router;

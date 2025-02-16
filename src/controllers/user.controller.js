@@ -111,9 +111,9 @@ export const getUserById = async(req, res) => {
 export const updateUser = async(req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, organization, profileData, preferences } = req.body;
+        const { name, email, password } = req.body;
 
-        // 📌 Buscar el usuario en la base de datos
+        // 📌 Buscar usuario
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({
@@ -124,12 +124,20 @@ export const updateUser = async(req, res) => {
             });
         }
 
-        // 📌 Actualizar los campos permitidos
+        // 📌 Solo actualizar los campos permitidos
         if (name) user.name = name;
         if (email) user.email = email;
-        if (organization) user.organization = organization;
-        if (profileData) user.profileData = {...user.profileData, ...profileData };
-        if (preferences) user.preferences = {...user.preferences, ...preferences };
+        if (password) {
+            if (password.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    error: "La contraseña debe tener al menos 6 caracteres",
+                    code: "WEAK_PASSWORD",
+                    timestamp: new Date().toISOString(),
+                });
+            }
+            user.password = await bcrypt.hash(password, 10);
+        }
 
         // 📌 Guardar cambios
         await user.save();
@@ -141,11 +149,28 @@ export const updateUser = async(req, res) => {
                 id: user._id.toString(),
                 name: user.name,
                 email: user.email,
-                organization: user.organization,
-                profileData: user.profileData,
-                preferences: user.preferences,
                 updatedAt: user.updatedAt.toISOString(),
             },
+            timestamp: new Date().toISOString(),
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: "Error en el servidor",
+            details: [error.message],
+            code: "SERVER_ERROR",
+            timestamp: new Date().toISOString(),
+        });
+    }
+};
+export const getAllUsers = async(req, res) => {
+    try {
+        // 📌 Obtener todos los usuarios y excluir la contraseña
+        const users = await User.find().select("-password");
+
+        res.json({
+            success: true,
+            data: users,
             timestamp: new Date().toISOString(),
         });
     } catch (error) {
