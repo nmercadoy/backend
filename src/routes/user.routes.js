@@ -1,10 +1,23 @@
 import express from "express";
-import { register, login } from "../controllers/user.controller.js";
+import { register, login, getUserById, updateUser, deleteUser } from "../controllers/user.controller.js";
 import { registerSchema } from "../schemas/user.schema.js";
+import { validateSchema } from "../middlewares/validator.middleware.js";
+import { verifyToken } from "../middlewares/auth.token.js";
+
 
 const router = express.Router();
 
-router.post("/register", register);
+// 📌 Rutas de autenticación
+router.post("/register", validateSchema(registerSchema), register);
 router.post("/login", login);
+
+// 📌 Obtener un usuario por ID (protegido)
+router.get("/:id", verifyToken, getUserById);
+
+// 📌 Actualizar usuario por ID (protegido)
+router.put("/:id", verifyToken, updateUser);
+
+// 📌 Eliminar usuario por ID (protegido)
+router.delete("/:id", verifyToken, deleteUser);
 
 export default router;
